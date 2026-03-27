@@ -11,7 +11,7 @@ func main() {
 	// Init periph
 	dis := hw.NewDisplay()
 	dis.BeginDraw()
-	dis.AddLabel(10, 22, "Inizializzazione display")
+	dis.AddLabel(0, 22, "Inizializzazione display")
 	dis.EndDraw()
 	time.Sleep(10 * time.Second) // Delay di 2 secondi
 	statusBar := display.StatusBar{Wifi: true, Battery: 100}

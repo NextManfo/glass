@@ -42,7 +42,7 @@ func NewDisplay() *Display {
 	dev, err := ssd1306.NewI2C(bus, &ssd1306.Opts{
 		W:       128,
 		H:       32,
-		Rotated: true,
+		Rotated: false,
 	})
 	if err != nil {
 		log.Fatal(err)
