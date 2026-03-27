@@ -12,7 +12,7 @@ func (s *HomeScreen) RenderScrollHorizontal(d *hw.Display) {
 		s.scrollX = 128 // inizia da destra
 	}
 	d.DrawLabel(s.scrollX, 22, s.Title)
-	s.scrollX -= 2
+	s.scrollX -= 1
 	if s.scrollX < -len(s.Title)*7 {
 		s.scrollX = 128
 	}
