@@ -10,6 +10,7 @@ import (
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/basicfont"
 	"golang.org/x/image/math/fixed"
+	"periph.io/x/conn/v3/i2c"
 	"periph.io/x/conn/v3/i2c/i2creg"
 	"periph.io/x/devices/v3/ssd1306"
 	"periph.io/x/devices/v3/ssd1306/image1bit"
@@ -19,6 +20,7 @@ import (
 type Display struct {
 	Device        *ssd1306.Dev
 	CurrentScreen *image1bit.VerticalLSB
+	Bus           i2c.BusCloser
 }
 
 func NewDisplay() *Display {
@@ -34,7 +36,7 @@ func NewDisplay() *Display {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer bus.Close()
+	newDisplay.Bus = bus
 
 	// Init display 128x32
 	dev, err := ssd1306.NewI2C(bus, &ssd1306.Opts{
@@ -50,7 +52,7 @@ func NewDisplay() *Display {
 	return &newDisplay
 }
 
-// Pulisce il dispay impostandolo tutto nero
+// ClearDisplay Pulisce il dispay impostandolo tutto nero
 func (display *Display) ClearDisplay() {
 	draw.Draw(display.CurrentScreen, display.CurrentScreen.Bounds(), &image.Uniform{color.Black}, image.Point{}, draw.Src)
 }
@@ -90,3 +92,7 @@ func (display *Display) BeginDraw() {
 	display.ClearDisplay() // Pulisco gia il display se rinizio a disegnare
 }
 
+func (display *Display) Reset() {
+	display.Bus.Close()
+	display = NewDisplay()
+}
