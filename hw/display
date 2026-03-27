@@ -1,4 +1,1 @@
-package display
 
-func NewDisplay() {
-}
