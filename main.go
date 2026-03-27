@@ -10,9 +10,9 @@ import (
 	"golang.org/x/image/font/basicfont"
 	"golang.org/x/image/math/fixed"
 
-	"periph.io/x/periph/conn/i2c/i2creg"
-	"periph.io/x/periph/devices/ssd1306"
-	"periph.io/x/periph/host"
+	"periph.io/x/conn/v3/i2c/i2creg"
+	"periph.io/x/devices/v3/ssd1306"
+	"periph.io/x/host/v3"
 )
 
 func main() {
@@ -31,9 +31,9 @@ func main() {
 
 	// Init display 128x32
 	dev, err := ssd1306.NewI2C(bus, &ssd1306.Opts{
-		W: 128,
-		H: 32,
-		Rotated:true, 
+		W:       128,
+		H:       32,
+		Rotated: true,
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -47,8 +47,8 @@ func main() {
 
 	// --- Disegna rettangolo ---
 	for x := 10; x < 118; x++ {
-		img.SetGray(x, 5, white)   // top
-		img.SetGray(x, 25, white)  // bottom
+		img.SetGray(x, 5, white)  // top
+		img.SetGray(x, 25, white) // bottom
 	}
 	for y := 5; y < 25; y++ {
 		img.SetGray(10, y, white)  // left
