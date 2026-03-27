@@ -26,7 +26,16 @@ func main() {
 
 		case <-tickStatus.C:
 			statusBar.Time = time.Now().Format("15:04")
-			// qui aggiorni wifi, batteria ecc
+			battery, err := hw.ReadBattery(dis.Bus)
+			if err == nil {
+				statusBar.Battery = battery
+			}
+			wifi, err := hw.ReadWifiStrength()
+			if err == nil {
+				statusBar.WifiStrength = wifi
+			} else {
+				statusBar.WifiStrength = 0 // nessun segnale
+			}
 
 		case <-tickDisplay.C:
 			dis.BeginDraw()
