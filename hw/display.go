@@ -96,3 +96,7 @@ func (display *Display) Reset() {
 	display.Bus.Close()
 	display = NewDisplay()
 }
+
+func (display *Display) EndDraw() {
+	display.Device.Draw(display.Device.Bounds(), display.CurrentScreen, image.Point{})
+}
