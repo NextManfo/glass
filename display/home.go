@@ -7,5 +7,5 @@ type HomeScreen struct {
 }
 
 func (s *HomeScreen) Render(d *hw.Display) {
-	d.AddLabel(0, 22, s.Title) // ha Render → implementa Screen
+	d.DrawLabelScroll(22, s.Title) // ha Render → implementa Screen
 }

@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"image/draw"
 	"log"
+	"time"
 
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/basicfont"
@@ -69,7 +70,7 @@ func (display *Display) DrawBitmap(bmp [][]int, offsetX, offsetY int) {
 }
 
 // Scrive del testo
-func (display *Display) AddLabel(x, y int, label string) {
+func (display *Display) DrawLabel(x, y int, label string) {
 	col := color.Gray{Y: 255}
 
 	point := fixed.Point26_6{
@@ -99,4 +100,40 @@ func (display *Display) Reset() {
 
 func (display *Display) EndDraw() {
 	display.Device.Draw(display.Device.Bounds(), display.CurrentScreen, image.Point{})
+}
+
+func (display *Display) DrawLabelScroll(y int, label string) {
+	x := 128 // parte da destra fuori schermo
+	img := display.CurrentScreen
+	drawer := &font.Drawer{Face: basicfont.Face7x13}
+	testoWidth := int(drawer.MeasureString(label) >> 6)
+
+	for {
+		// Pulisci
+		draw.Draw(img, img.Bounds(), &image.Uniform{color.Black}, image.Point{}, draw.Src)
+
+		// Disegna testo nella posizione corrente
+		d := &font.Drawer{
+			Dst:  img,
+			Src:  &image.Uniform{color.White},
+			Face: basicfont.Face7x13,
+			Dot:  fixed.P(x, y),
+		}
+		d.DrawString(label)
+
+		// Invia al display
+		if err := display.Device.Draw(display.CurrentScreen.Bounds(), img, image.Point{}); err != nil {
+			log.Fatal(err)
+		}
+
+		// Muovi a sinistra
+		x -= 2 // ← velocità di scorrimento in pixel
+
+		// Quando il testo è uscito completamente a sinistra, ricomincia da destra
+		if x < -testoWidth {
+			x = 128
+		}
+
+		time.Sleep(20 * time.Millisecond) // ← controlla la fluidità
+	}
 }

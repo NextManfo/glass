@@ -10,7 +10,7 @@ type StatusBar struct {
 }
 
 func (s *StatusBar) Render(d *hw.Display) {
-	d.AddLabel(0, s.Position, s.Time)
+	d.DrawLabel(0, s.Position, s.Time)
 	d.DrawBitmap(IconWifi, 90, s.Position)
 	d.DrawBitmap(IconBattery, 100, s.Position)
 }
