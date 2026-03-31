@@ -29,7 +29,7 @@ func main() {
 			currentScreen = &display.HomeScreen{Title: newMsg}
 		case newDetection := <-detectionChan:
 			if newDetection == "detected" {
-				currentScreen = &display.HomeScreen{Title: "Magic word activate"}
+				currentScreen = &display.LoadingScreen{}
 			}
 		case <-tickStatus.C:
 			statusBar.Time = time.Now().Format("15:04")
