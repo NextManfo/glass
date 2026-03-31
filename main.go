@@ -15,7 +15,8 @@ func main() {
 	dis.DrawLabel(0, 22, "Inizializzazione display")
 	dis.EndDraw()
 	msgChan := make(chan string, 10)
-	go mqtt.NewReciever(msgChan)
+	detectionChan := make(chan string, 10)
+	go mqtt.NewReciever(msgChan, detectionChan)
 	// time.Sleep(10 * time.Second) // Delay di 2 secondi
 	statusBar := display.StatusBar{Wifi: true, Battery: 100, Position: 10}
 	var currentScreen display.Screen = &display.HomeScreen{Title: "Home screen"}
@@ -26,7 +27,10 @@ func main() {
 		select {
 		case newMsg := <-msgChan:
 			currentScreen = &display.HomeScreen{Title: newMsg}
-
+		case newDetection := <-detectionChan:
+			if newDetection == "detected" {
+				currentScreen = &display.HomeScreen{Title: "Magic word activate"}
+			}
 		case <-tickStatus.C:
 			statusBar.Time = time.Now().Format("15:04")
 			battery, err := hw.ReadBattery(dis.Bus)
