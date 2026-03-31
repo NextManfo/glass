@@ -70,7 +70,7 @@ func NewReciever(chmsg chan string, chdetection chan string) {
 	opts.AddBroker(broker)
 	opts.SetClientID(clientID)
 	opts.SetUsername("mqtt")
-	opts.SetPassword("PaoloManfe95")
+	opts.SetPassword("Paolomanfe95")
 	opts.SetDefaultPublishHandler(messagePubHandler)
 	opts.OnConnect = connectHandler
 	opts.OnConnectionLost = connectLostHandler
