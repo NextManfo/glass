@@ -8,9 +8,9 @@ type HomeScreen struct {
 }
 
 func (s *HomeScreen) RenderScrollHorizontal(d *hw.Display) {
-	if s.scrollX == 0 {
-		s.scrollX = 128 // inizia da destra
-	}
+	// if s.scrollX == 0 {
+	// 	s.scrollX = 128 // inizia da destra
+	// }
 	d.DrawLabel(s.scrollX, 22, s.Title)
 	s.scrollX -= 1
 	if s.scrollX < -len(s.Title)*7 {
