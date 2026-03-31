@@ -5,6 +5,7 @@ import (
 
 	"glass/display"
 	"glass/hw"
+	"glass/mqtt"
 )
 
 func main() {
@@ -13,7 +14,9 @@ func main() {
 	dis.BeginDraw()
 	dis.DrawLabel(0, 22, "Inizializzazione display")
 	dis.EndDraw()
-	time.Sleep(10 * time.Second) // Delay di 2 secondi
+	msgChan := make(chan string, 10)
+	go mqtt.NewReciever(msgChan)
+	// time.Sleep(10 * time.Second) // Delay di 2 secondi
 	statusBar := display.StatusBar{Wifi: true, Battery: 100, Position: 10}
 	var currentScreen display.Screen = &display.HomeScreen{Title: "Home screen"}
 	tickDisplay := time.NewTicker(30 * time.Millisecond) // scroll fluido
@@ -21,8 +24,8 @@ func main() {
 
 	for {
 		select {
-		// case newMsg := <-msgChan:
-		//	currentScreen = &display.ChatScreen{Message: newMsg}
+		case newMsg := <-msgChan:
+			currentScreen = &display.HomeScreen{Title: newMsg}
 
 		case <-tickStatus.C:
 			statusBar.Time = time.Now().Format("15:04")

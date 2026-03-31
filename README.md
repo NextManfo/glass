@@ -5,16 +5,16 @@ Progetto per costruire degli smart glass su raspberry pi zero 2w con le seguenti
 ## Struttura delle cartelle:
 
 - glass:
--   main.go
--   display
+- main.go
+- display
 -       hud.go
 -       icone.go
--   hw
+- hw
 -       display.go
 -       microfono.go
 -       fotocamera.go
--   mqtt
+- mqtt
 -       client.go
--   model
+- model
 -       msgFoto.go
 -       msgAudio.go
