@@ -56,7 +56,9 @@ func processMsg(ctx context.Context, input <-chan mqtt.Message, client mqtt.Clie
 						// Facciamo la foto
 						data := hw.TakePhoto()
 						client.Publish(topicTakePhoto, 0, false, data)
+						fmt.Printf("Send to topic: %s\n", topicTakePhoto)
 						client.Publish(topicStatusPhoto, 0, false, "idle")
+						fmt.Printf("Send to topic: %s\n", topicStatusPhoto)
 					}
 				}
 				out <- msg
