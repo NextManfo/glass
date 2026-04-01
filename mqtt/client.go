@@ -8,6 +8,8 @@ import (
 	"sync"
 	"syscall"
 
+	"glass/hw"
+
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
@@ -19,10 +21,12 @@ type Client struct {
 }
 
 const (
-	broker         = "tcp://192.168.2.12:1883"
-	clientID       = "smart-glass"
-	topicMsg       = "smart-glass/testo"
-	topicDetection = "smart-glass/detection"
+	broker           = "tcp://192.168.2.12:1883"
+	clientID         = "smart-glass"
+	topicMsg         = "smart-glass/testo"
+	topicDetection   = "smart-glass/detection"
+	topicTakePhoto   = "smart-glass/photo/take"
+	topicStatusPhoto = "smart-glass/photo/status"
 )
 
 var mqttMsgChan = make(chan mqtt.Message)
@@ -31,7 +35,7 @@ var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Me
 	mqttMsgChan <- msg
 }
 
-func processMsg(ctx context.Context, input <-chan mqtt.Message, chmsg chan string, chdetection chan string) chan mqtt.Message {
+func processMsg(ctx context.Context, input <-chan mqtt.Message, client mqtt.Client, chmsg chan string, chdetection chan string) chan mqtt.Message {
 	out := make(chan mqtt.Message)
 	go func() {
 		defer close(out)
@@ -47,6 +51,13 @@ func processMsg(ctx context.Context, input <-chan mqtt.Message, chmsg chan strin
 					chmsg <- string(msg.Payload())
 				} else if msg.Topic() == topicDetection {
 					chdetection <- string(msg.Payload())
+				} else if msg.Topic() == topicStatusPhoto {
+					if string(msg.Payload()) == "take" {
+						// Facciamo la foto
+						data := hw.TakePhoto()
+						client.Publish(topicTakePhoto, 0, false, data)
+						client.Publish(topicStatusPhoto, 0, false, "idle")
+					}
 				}
 				out <- msg
 			case <-ctx.Done():
@@ -84,7 +95,7 @@ func NewReciever(chmsg chan string, chdetection chan string) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		finalChan := processMsg(ctx, mqttMsgChan, chmsg, chdetection)
+		finalChan := processMsg(ctx, mqttMsgChan, client, chmsg, chdetection)
 		for range finalChan {
 			// just consuming these for now
 		}
@@ -92,12 +103,16 @@ func NewReciever(chmsg chan string, chdetection chan string) {
 
 	// Subscribe to the topic
 	token := client.Subscribe(topicMsg, 1, nil)
-
 	token.Wait()
 	fmt.Printf("Subscribed to topic: %s\n", topicMsg)
+
 	token = client.Subscribe(topicDetection, 1, nil)
 	token.Wait()
-	fmt.Printf("Subscribed to topic: %s\n", topicMsg)
+	fmt.Printf("Subscribed to topic: %s\n", topicDetection)
+
+	token = client.Subscribe(topicStatusPhoto, 1, nil)
+	token.Wait()
+	fmt.Printf("Subscribed to topic: %s\n", topicStatusPhoto)
 
 	// Wait for interrupt signal to gracefully shutdown the subscriber
 	sigChan := make(chan os.Signal, 1)
