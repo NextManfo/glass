@@ -1,8 +1,16 @@
 package hw
 
-import "os/exec"
+import (
+	"encoding/base64"
+	"fmt"
+	"os/exec"
+)
 
-func TakePhoto() []byte {
+type CameraPayload struct {
+	Image string `json:"image"`
+}
+
+func TakePhoto() ([]byte, error) {
 	cmd := exec.Command(
 		"rpicam-still",
 		"-o", "-",
@@ -12,6 +20,18 @@ func TakePhoto() []byte {
 		"--height", "480",
 		"--quality", "50",
 	)
-	imgBytes, _ := cmd.Output()
-	return imgBytes
+	imgBytes, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("errore acquisizione foto: %w", err)
+	}
+	return imgBytes, nil
 }
+
+func TakePhotoBase64() (string, error) {
+	imgBytes, err := TakePhoto()
+	if err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(imgBytes), nil
+}
+

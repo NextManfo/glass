@@ -2,6 +2,7 @@ package mqtt
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/signal"
@@ -54,8 +55,16 @@ func processMsg(ctx context.Context, input <-chan mqtt.Message, client mqtt.Clie
 				} else if msg.Topic() == topicStatusPhoto {
 					if string(msg.Payload()) == "take" {
 						// Facciamo la foto
-						data := hw.TakePhoto()
-						client.Publish(topicTakePhoto, 0, false, data)
+						data, err := hw.TakePhotoBase64()
+						if err != nil {
+							fmt.Errorf("errore foto: %w", err)
+						}
+						payload, err := json.Marshal(hw.CameraPayload{Image: data})
+						if err != nil {
+							fmt.Errorf("errore json: %w", err)
+						}
+
+						client.Publish(topicTakePhoto, 0, false, payload)
 						fmt.Printf("Send to topic: %s\n", topicTakePhoto)
 						client.Publish(topicStatusPhoto, 0, false, "idle")
 						fmt.Printf("Send to topic: %s\n", topicStatusPhoto)
